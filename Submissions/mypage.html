@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="custom.css">
+
+    <meta charset="utf-8" />
+     <link rel="stylesheet" type="text/css" href="mystyle.css">
+<style>
+body {background-color: linen;}
+</style>
+    <title>Prediction Wizard</title>
+</head>
+<body style="background:#e6e2d3">
+>
+<br />
+<br />
+<br />
+<h1 align="center">Loan Application Qualifier</h1>
+
+
+<br /><br />
+
+<body>
+    <div class="container col-lg-6">
+        <div style="padding-bottom: 0.5cm">
+            <div class="card text-center bg-light">
+                <div class="card-body" style="padding-bottom: 0.2cm">
+                    <input class="card-title form-control" type="number" min="0" pattern="[0-9]$" id="Credit_History"  placeholder="Input Credit History" required />
+		    <input class="card-title form-control" type="number" min="0" pattern="[0-9]$" id="LoanAmount"  placeholder="Input Loan Amount"/>
+
+		   <br>
+                    <button class="card-text btn btn-outline-primary" id="btn" style="color:black">Find Elligibility</button>
+                    <div class="spinner" id="spinner" style="display: none">
+                      <div class="double-bounce1"></div>
+                      <div class="double-bounce2"></div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <pre class="card-text api-pre" style="padding-bottom: 0.2cm">
+                        <div class="item" id="api_input"> </div>
+                        <div class="item" id="api_output"></div>
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+
+<script type="text/javascript">
+    function api_call(Credit_History,LoanAmount) {
+        // hide button and make the spinner appear
+        $('#btn').toggle();
+        $('#spinner').toggle();
+        $.ajax({
+		url: "http://0.0.0.0:5000/api",
+            method: 'POST',
+            contentType: 'application/json',
+            data: "{\"example\": ["+Credit_History+","+LoanAmount+"]}",
+
+            
+            success: function( data, textStatus, jQxhr ){
+                // toggle the spinner and button
+                $('#btn').toggle();
+                $('#spinner').toggle();
+                // fill the html for answer
+                $('#api_input').html( data.input );
+		if (data["score"] == 0) {
+			msg = "Not Qualified"  		
+		}
+		else
+			{
+				msg ="Qualified"
+			}
+
+                $('#api_output').html(msg );
+		$('#api_input').html("" );
+
+                $("#input").val("");
+            },
+            error: function( jqXhr, textStatus, errorThrown ){
+               
+                $('#btn').toggle();
+                $('#spinner').toggle();
+                $('#api_input').html( "Invalid Input!" );
+
+                $('#api_output').html( "Try again!" );
+	 	$("#api_input").val("");
+                $("#api_output").val("")
+                console.log( errorThrown );
+            },
+            timeout: 3000 // sets timeout to 10 seconds
+        });
+    }
+    $( document ).ready(function() {
+        // request when clicking on the button
+        $('#btn').click(function() {
+            // get the input data
+	    var Credit_History = $("#Credit_History").val();
+            var LoanAmount =$("#LoanAmount").val();
+            api_call(Credit_History,LoanAmount);
+            input = "";
+    });
+    });
+</script>
+
